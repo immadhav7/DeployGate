@@ -1,0 +1,14 @@
+target/
+.git/
+.gitignore
+.settings/
+.classpath
+.project
+.vscode/
+.idea/
+*.iml
+deployment-files/
+deployment/
+application-local.properties
+*.log
+README.md

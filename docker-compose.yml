@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: deploygate-db
+    environment:
+      POSTGRES_DB: deploygate
+      POSTGRES_USER: deploygate_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?error-DB_PASSWORD not set}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U deploygate_user -d deploygate"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: deploygate-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/deploygate
+      DB_USERNAME: deploygate_user
+      DB_PASSWORD: ${DB_PASSWORD:?error-DB_PASSWORD not set}
+    ports:
+      - "8081:8081"
+    volumes:
+      - deployment_files:/app/deployment-files
+      - deployment_data:/app/deployment
+
+volumes:
+  pgdata:
+  deployment_files:
+  deployment_data:
