@@ -1,0 +1,1306 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DeployGate</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+    <link href="/css/style.css" rel="stylesheet"/>
+</head>
+<body>
+<!-- ══════════════════════════════ NAVBAR ══════════════════════════════════ -->
+<nav class="navbar navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
+        <span class="navbar-brand fw-bold fs-5">
+            <i class="bi bi-git me-2"></i>DeployGate
+        </span>
+        <span class="badge bg-light text-primary fs-6 px-3 py-2" id="navModeBadge">
+            <i class="bi bi-file-earmark me-1"></i>Single Upload
+        </span>
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-white small"><i class="bi bi-person-circle me-1"></i><span id="navUsername"></span></span>
+            <a href="/logout" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-box-arrow-right me-1"></i>Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- ══════════════════════════════ MODE SELECTOR ═══════════════════════════ -->
+<div class="mode-bar border-bottom shadow-sm bg-white">
+    <div class="container-fluid px-4 py-2 d-flex align-items-center gap-3">
+        <span class="fw-semibold text-secondary small me-1">UPLOAD MODE:</span>
+        <button id="tabSingle" class="btn btn-primary btn-sm">
+            <i class="bi bi-file-earmark-excel me-1"></i>Single Upload
+        </button>
+        <button id="tabBulk" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-files me-1"></i>Bulk Upload
+        </button>
+        <button id="tabDeployment" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-rocket-takeoff me-1"></i>Deployment Request
+        </button>
+    </div>
+</div>
+
+<!-- ══════════════════════════════ MAIN ════════════════════════════════════ -->
+<div id="uploadModeContent">
+<div class="container-fluid py-4 px-4">
+    <div class="row g-4">
+
+        <!-- ════════════════ LEFT PANEL ════════════════ -->
+        <div class="col-xl-3 col-lg-4">
+
+            <!-- Mode description card -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header text-white fw-semibold" id="modeCardHeader"
+                     style="background:#0d6efd;">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Single Upload Mode
+                </div>
+                <div class="card-body small text-muted py-2" id="modeCardBody">
+                    Upload <strong>1 to N</strong> Excel files. Each file is validated
+                    immediately. All valid files are merged into one dataset before processing.
+                </div>
+            </div>
+
+            <!-- Environment selector -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-secondary text-white fw-semibold">
+                    <i class="bi bi-globe2 me-1"></i> Environment
+                    <span class="text-warning ms-1">*</span>
+                </div>
+                <div class="card-body pb-3">
+                    <select class="form-select" id="environment">
+                        <option value="">— Select Environment —</option>
+                        <option value="UAT1">UAT1</option>
+                        <option value="UAT2">UAT2</option>
+                        <option value="ST1">ST1</option>
+                        <option value="ST2">ST2</option>
+                        <option value="PreProd">PreProd</option>
+                        <option value="PROD">PROD</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- File upload card -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-primary text-white fw-semibold">
+                    <i class="bi bi-cloud-upload me-1"></i> Upload Files
+                </div>
+                <div class="card-body">
+                    <div id="dropZone" class="drop-zone">
+                        <i class="bi bi-cloud-upload fs-1 text-muted mb-2"></i>
+                        <p class="mb-1 fw-semibold text-secondary">Drag &amp; Drop Files Here</p>
+                        <p class="small text-muted mb-2">— or —</p>
+                        <label for="excelFiles" class="btn btn-outline-primary btn-sm px-4">
+                            <i class="bi bi-folder2-open me-1"></i>Choose Files
+                        </label>
+                        <input type="file" id="excelFiles" accept=".xlsx,.xls"
+                               multiple class="d-none"/>
+                        <p class="small text-muted mt-2 mb-0">.xlsx &amp; .xls supported</p>
+                    </div>
+                    <div id="fileCountBadge" class="mt-2 d-none text-center">
+                        <span class="badge bg-primary px-3 py-2" id="fileCountText">
+                            0 files selected
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white fw-semibold">
+                    <i class="bi bi-gear me-1"></i> Actions
+                </div>
+                <div class="card-body d-grid gap-2">
+                    <button id="btnProcess" class="btn btn-success" disabled>
+                        <i class="bi bi-cpu me-1"></i> Process Files
+                    </button>
+                    <button id="btnDownloadTemplate" class="btn btn-outline-primary">
+                        <i class="bi bi-download me-1"></i> Download Template
+                    </button>
+                    <button id="btnReset" class="btn btn-outline-danger">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+        </div>
+        <!-- end LEFT PANEL -->
+
+        <!-- ════════════════ RIGHT PANEL ════════════════ -->
+        <div class="col-xl-9 col-lg-8">
+
+            <!-- Alert area -->
+            <div id="alertArea"></div>
+
+            <!-- Validation grid -->
+            <div id="validationSection" class="card shadow-sm mb-4 d-none">
+                <div class="card-header fw-semibold d-flex align-items-center justify-content-between">
+                    <span><i class="bi bi-check2-all me-1"></i> File Validation</span>
+                    <span class="badge bg-secondary" id="validationBadge">Pending</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th><i class="bi bi-file-earmark me-1"></i>File Name</th>
+                                    <th style="width:90px">Rows</th>
+                                    <th style="width:110px">Status</th>
+                                    <th>Error / Info</th>
+                                </tr>
+                            </thead>
+                            <tbody id="validationTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Processing spinner -->
+            <div id="processingSpinner" class="text-center py-5 d-none">
+                <div class="spinner-border text-primary"
+                     style="width:3.5rem;height:3.5rem;" role="status">
+                    <span class="visually-hidden">Processing…</span>
+                </div>
+                <p class="mt-3 text-muted fw-semibold">
+                    Merging and processing Excel files, please wait…
+                </p>
+            </div>
+
+            <!-- Download results (shown after processing) -->
+            <div id="downloadSection" class="card shadow-sm mb-4 d-none">
+                <div class="card-header bg-success text-white fw-semibold">
+                    <i class="bi bi-download me-1"></i> Download Results
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <button id="btnDownloadExcel" class="btn btn-success w-100">
+                                <i class="bi bi-file-earmark-excel-fill me-1"></i>
+                                Download Processed Excel
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button id="btnDownloadCustomer" class="btn btn-info text-white w-100">
+                                <i class="bi bi-file-text me-1"></i>Customer_GIT_Files.txt
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button id="btnDownloadProduct" class="btn btn-warning w-100">
+                                <i class="bi bi-file-text me-1"></i>Product_GIT_Files.txt
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button id="btnDownloadRule" class="btn btn-secondary w-100">
+                                <i class="bi bi-file-text me-1"></i>Rule_GIT_Files.txt
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button id="btnDownloadMdt" class="btn btn-dark w-100">
+                                <i class="bi bi-file-text me-1"></i>MDT_Name.txt
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button id="btnDownloadJars" class="btn btn-purple w-100" style="background-color:#6f42c1;color:#fff;">
+                                <i class="bi bi-file-text me-1"></i>jarsname.txt
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div id="summarySection" class="mb-4 d-none">
+                <h6 class="text-uppercase text-muted fw-bold mb-3">
+                    <i class="bi bi-bar-chart-fill me-1"></i> Processing Summary
+                </h6>
+                <div class="alert alert-primary d-flex align-items-center py-2 mb-3" role="alert">
+                    <i class="bi bi-globe2 me-2 fs-5"></i>
+                    <span>Environment: <strong id="statEnv">—</strong></span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+                        <div class="stat-card bg-dark text-white">
+                            <div class="stat-value" id="statFiles">0</div>
+                            <div class="stat-label">Files Uploaded</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+                        <div class="stat-card bg-primary text-white">
+                            <div class="stat-value" id="statTotal">0</div>
+                            <div class="stat-label">Total Rows</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+                        <div class="stat-card bg-success text-white">
+                            <div class="stat-value" id="statValid">0</div>
+                            <div class="stat-label">Valid Rows</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+                        <div class="stat-card bg-danger text-white">
+                            <div class="stat-value" id="statRejected">0</div>
+                            <div class="stat-label">Rejected Rows</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+                        <div class="stat-card stat-info text-white">
+                            <div class="stat-value" id="statCustomer">0</div>
+                            <div class="stat-label">Customer_GIT</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+                        <div class="stat-card stat-warning text-dark">
+                            <div class="stat-value" id="statProduct">0</div>
+                            <div class="stat-label">Product_GIT</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+                        <div class="stat-card bg-secondary text-white">
+                            <div class="stat-value" id="statRule">0</div>
+                            <div class="stat-label">Rule_GIT</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+                        <div class="stat-card stat-purple text-white">
+                            <div class="stat-value" id="statMdt">0</div>
+                            <div class="stat-label">MDT</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+                        <div class="stat-card text-white" style="background-color:#6f42c1;">
+                            <div class="stat-value" id="statJars">0</div>
+                            <div class="stat-label">Unique JARs</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+                        <div class="stat-card bg-success text-white">
+                            <div class="stat-value" id="statCorrect">0</div>
+                            <div class="stat-label">Correct Type</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+                        <div class="stat-card stat-orange text-white">
+                            <div class="stat-value" id="statCorrected">0</div>
+                            <div class="stat-label">Corrected</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+                        <div class="stat-card bg-danger text-white">
+                            <div class="stat-value" id="statUnable">0</div>
+                            <div class="stat-label">Unable To ID</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Processing Log -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold">
+                        <i class="bi bi-terminal me-1"></i> Processing Log
+                    </span>
+                    <button class="btn btn-sm btn-outline-light" id="btnClearLog">
+                        <i class="bi bi-trash me-1"></i>Clear
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div id="logArea" class="log-area">
+                        <div class="log-placeholder">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Upload and process Excel files to see log entries here.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- end RIGHT PANEL -->
+    </div>
+</div>
+</div><!-- /uploadModeContent -->
+
+<!-- ══════════════════════════ DEPLOYMENT MODE ══════════════════════════ -->
+<div id="deploymentModeContent" class="d-none container-fluid py-4 px-4">
+
+    <!-- Sub-tab bar -->
+    <ul class="nav nav-tabs mb-4" id="deploySubTabs">
+        <li class="nav-item">
+            <a class="nav-link active" id="depTabUpload" href="#" onclick="switchDepTab('upload');return false;">
+                <i class="bi bi-cloud-upload me-1"></i>Upload Request
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="depTabDashboard" href="#" onclick="switchDepTab('dashboard');return false;">
+                <i class="bi bi-speedometer2 me-1"></i>Deployment Dashboard
+            </a>
+        </li>
+    </ul>
+
+    <!-- ── Upload Request form ──────────────────────────────────────────── -->
+    <div id="depUploadSection">
+        <div class="card shadow-sm" style="max-width:700px;">
+            <div class="card-header bg-primary text-white fw-semibold">
+                <i class="bi bi-cloud-upload me-1"></i> New Deployment Request
+            </div>
+            <div class="card-body">
+                <div id="depAlertArea"></div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Developer Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="depDeveloperName"
+                           placeholder="Auto-populated from login" readonly
+                           style="background:#f8f9fa; cursor:not-allowed;"/>
+                    <div class="form-text"><i class="bi bi-info-circle me-1"></i>Populated from your login session.</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Environment <span class="text-danger">*</span></label>
+                    <select class="form-select" id="depEnvironment">
+                        <option value="">— Select —</option>
+                        <option value="UAT1">UAT1</option>
+                        <option value="UAT2">UAT2</option>
+                        <option value="PREPROD">PREPROD</option>
+                        <option value="PROD">PROD</option>
+                    </select>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Deployment Date</label>
+                        <input type="date" class="form-control" id="depDeploymentDate" readonly
+                               style="background:#f8f9fa; cursor:not-allowed;"/>
+                        <div class="form-text"><i class="bi bi-calendar-check me-1"></i>Set automatically on file upload.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Deployment Time (HH:mm)</label>
+                        <input type="time" class="form-control" id="depDeploymentTime" readonly
+                               style="background:#f8f9fa; cursor:not-allowed;"/>
+                        <div class="form-text"><i class="bi bi-clock me-1"></i>Set automatically on file upload.</div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Description</label>
+                    <textarea class="form-control" id="depDescription" rows="2" placeholder="Brief description of this deployment"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Remarks</label>
+                    <textarea class="form-control" id="depRemarks" rows="2" placeholder="Any additional notes or remarks"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Excel File <span class="text-danger">*</span></label>
+                    <input type="file" class="form-control" id="depFile" accept=".xlsx,.xls"/>
+                    <div class="form-text">.xlsx / .xls only. Date &amp; Time will be set automatically when you select a file.</div>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-success px-4" id="btnDepSubmit">
+                        <i class="bi bi-send me-1"></i> Submit Request
+                    </button>
+                    <button class="btn btn-outline-primary px-3" type="button" id="btnDepDownloadTemplate">
+                        <i class="bi bi-download me-1"></i> Download Template
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Deployment Dashboard ─────────────────────────────────────────── -->
+    <div id="depDashboardSection" class="d-none">
+
+        <!-- Stat cards - compact single row -->
+        <div class="d-flex flex-wrap gap-2 mb-3" id="depStatsRow">
+            <span class="badge bg-warning text-dark px-3 py-2" style="font-size:0.8rem"><i class="bi bi-clock me-1"></i><span id="depStatPending">–</span> Pending</span>
+            <span class="badge bg-success px-3 py-2" style="font-size:0.8rem"><i class="bi bi-check-circle me-1"></i><span id="depStatDeployed">–</span> Deployed</span>
+            <span class="badge bg-danger px-3 py-2" style="font-size:0.8rem"><i class="bi bi-x-circle me-1"></i><span id="depStatRejected">–</span> Rejected</span>
+            <span class="badge bg-info text-dark px-3 py-2" style="font-size:0.8rem"><i class="bi bi-calendar-event me-1"></i><span id="depStatToday">–</span> Today</span>
+            <span class="badge bg-primary px-3 py-2" style="font-size:0.8rem">UAT1: <span id="depStatUat1">–</span></span>
+            <span class="badge bg-secondary px-3 py-2" style="font-size:0.8rem">UAT2: <span id="depStatUat2">–</span></span>
+            <span class="badge bg-dark px-3 py-2" style="font-size:0.8rem">PREPROD: <span id="depStatPreprod">–</span></span>
+            <span class="badge bg-danger px-3 py-2" style="font-size:0.8rem">PROD: <span id="depStatProd">–</span></span>
+        </div>
+
+        <!-- Search filters -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header fw-semibold bg-secondary text-white">
+                <i class="bi bi-search me-1"></i> Search Requests
+            </div>
+            <div class="card-body">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold mb-1">Environment</label>
+                        <select class="form-select form-select-sm" id="depSearchEnv">
+                            <option value="">All</option>
+                            <option value="UAT1">UAT1</option>
+                            <option value="UAT2">UAT2</option>
+                            <option value="PREPROD">PREPROD</option>
+                            <option value="PROD">PROD</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold mb-1">Status</label>
+                        <select class="form-select form-select-sm" id="depSearchStatus">
+                            <option value="ALL">All</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="DEPLOYED">Deployed</option>
+                            <option value="REJECTED">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold mb-1">From Date</label>
+                        <input type="date" class="form-control form-control-sm" id="depSearchFrom"/>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold mb-1">To Date</label>
+                        <input type="date" class="form-control form-control-sm" id="depSearchTo"/>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary btn-sm w-100" id="btnDepSearch">
+                            <i class="bi bi-search me-1"></i>Search
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-secondary btn-sm w-100" id="btnDepRefreshStats">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Refresh Stats
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results grid -->
+        <div id="depAlertDashboard"></div>
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-table me-1"></i> Deployment Requests</span>
+                <span class="badge bg-secondary" id="depResultCount">0 results</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover table-bordered mb-0 align-middle" style="font-size:0.82rem">
+                        <thead class="table-dark" id="depTableHead">
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Developer</th>
+                                <th>Environment</th>
+                                <th>File</th>
+                                <th>Upload Date</th>
+                                <th>Deploy Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th class="dep-col-deployed-by d-none">Deployed By</th>
+                                <th>Download</th>
+                                <th class="dep-col-actions d-none">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="depResultsBody">
+                            <tr><td colspan="11" class="text-center text-muted py-3">Use search above to load requests.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mark Deployed confirmation bar (visible only to DEPLOYER) -->
+        <div id="depCompleteBar" class="card shadow-sm mt-3 d-none border-success">
+            <div class="card-body d-flex align-items-center gap-3">
+                <span class="fw-semibold text-success"><i class="bi bi-check-circle me-1"></i>Mark as Deployed:</span>
+                <span class="text-muted small" id="depCompleteLabel">Request ID will appear here</span>
+                <button class="btn btn-success btn-sm" id="btnDepComplete">
+                    <i class="bi bi-check-circle me-1"></i>Confirm Complete
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" id="btnDepCancelComplete">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Reject confirmation bar (visible only to DEPLOYER) -->
+        <div id="depRejectBar" class="card shadow-sm mt-3 d-none border-danger">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <span class="fw-semibold text-danger"><i class="bi bi-x-circle me-1"></i>Reject Deployment:</span>
+                    <span class="text-muted small" id="depRejectLabel">Request ID</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <input type="text" class="form-control form-control-sm" style="max-width:400px"
+                           id="depRejectComment" placeholder="Enter rejection reason (mandatory)" maxlength="1000"/>
+                    <button class="btn btn-danger btn-sm" id="btnDepReject">
+                        <i class="bi bi-x-circle me-1"></i>Confirm Reject
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" id="btnDepCancelReject">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /depDashboardSection -->
+
+</div><!-- /deploymentModeContent -->
+
+<!-- ══════════════════════════════ FOOTER ══════════════════════════════════ -->
+<footer class="footer py-3 bg-light border-top mt-4">
+    <div class="container-fluid text-center text-muted small">
+        DeployGate &mdash; Deployment Request Management & Tracking &copy; 2026
+    </div>
+</footer>
+
+<!-- Bootstrap JS bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   DeployGate - UI Logic
+   ═══════════════════════════════════════════════════════════════════ */
+
+// ── State ─────────────────────────────────────────────────────────────────
+let selectedFiles     = [];
+let validationResults = [];
+
+// ── DOM references ────────────────────────────────────────────────────────
+const environmentSel      = document.getElementById('environment');
+const fileInput           = document.getElementById('excelFiles');
+const dropZone            = document.getElementById('dropZone');
+const btnProcess          = document.getElementById('btnProcess');
+const btnDownloadTemplate = document.getElementById('btnDownloadTemplate');
+const btnReset            = document.getElementById('btnReset');
+const btnClearLog         = document.getElementById('btnClearLog');
+const validationSection   = document.getElementById('validationSection');
+const validationTableBody = document.getElementById('validationTableBody');
+const validationBadge     = document.getElementById('validationBadge');
+const processingSpinner   = document.getElementById('processingSpinner');
+const downloadSection     = document.getElementById('downloadSection');
+const summarySection      = document.getElementById('summarySection');
+const alertArea           = document.getElementById('alertArea');
+const logArea             = document.getElementById('logArea');
+const tabSingle           = document.getElementById('tabSingle');
+const tabBulk             = document.getElementById('tabBulk');
+const tabDeployment       = document.getElementById('tabDeployment');
+const navModeBadge        = document.getElementById('navModeBadge');
+const modeCardHeader      = document.getElementById('modeCardHeader');
+const modeCardBody        = document.getElementById('modeCardBody');
+const fileCountBadge      = document.getElementById('fileCountBadge');
+const fileCountText       = document.getElementById('fileCountText');
+const uploadModeContent   = document.getElementById('uploadModeContent');
+const deploymentModeContent = document.getElementById('deploymentModeContent');
+
+// ── Mode switching ────────────────────────────────────────────────────────
+tabSingle.addEventListener('click', () => switchMode('single'));
+tabBulk.addEventListener  ('click', () => switchMode('bulk'));
+tabDeployment.addEventListener('click', () => switchMode('deployment'));
+
+function switchMode(mode) {
+    tabSingle.className     = 'btn btn-outline-secondary btn-sm';
+    tabBulk.className       = 'btn btn-outline-secondary btn-sm';
+    tabDeployment.className = 'btn btn-outline-secondary btn-sm';
+    uploadModeContent.classList.add('d-none');
+    deploymentModeContent.classList.add('d-none');
+
+    if (mode === 'single') {
+        tabSingle.className = 'btn btn-primary btn-sm';
+        uploadModeContent.classList.remove('d-none');
+        navModeBadge.innerHTML = '<i class="bi bi-file-earmark me-1"></i>Single Upload';
+        modeCardHeader.innerHTML = '<i class="bi bi-file-earmark-excel me-1"></i> Single Upload Mode';
+        modeCardBody.innerHTML =
+            'Upload <strong>1 to N</strong> Excel files. Each file is validated ' +
+            'immediately. All valid files are merged into one dataset for processing.';
+    } else if (mode === 'bulk') {
+        tabBulk.className = 'btn btn-primary btn-sm';
+        uploadModeContent.classList.remove('d-none');
+        navModeBadge.innerHTML = '<i class="bi bi-files me-1"></i>Bulk Upload';
+        modeCardHeader.innerHTML = '<i class="bi bi-files me-1"></i> Bulk Upload Mode';
+        modeCardBody.innerHTML =
+            'Upload <strong>2 to 100+</strong> Excel files ' +
+            '(10,000\u2013100,000+ rows). Files are validated, merged into a ' +
+            'master dataset, and processed with full deduplication.';
+    } else {
+        tabDeployment.className = 'btn btn-primary btn-sm';
+        deploymentModeContent.classList.remove('d-none');
+        navModeBadge.innerHTML = '<i class="bi bi-rocket-takeoff me-1"></i>Deployment Request';
+        loadDepStats();
+    }
+    if (mode !== 'deployment') clearAll();
+
+    // Re-apply role-based tab visibility (switchMode resets className which removes d-none)
+    if (currentUserRole === 'DEVELOPER') {
+        tabSingle.classList.add('d-none');
+        tabBulk.classList.add('d-none');
+    }
+}
+
+// ── Drag & Drop ───────────────────────────────────────────────────────────
+dropZone.addEventListener('dragenter', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragover',  (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const files = Array.from(e.dataTransfer.files)
+        .filter(f => /\.(xlsx|xls)$/i.test(f.name));
+    if (files.length > 0) {
+        onFilesSelected(files);
+    } else {
+        showAlert('warning',
+            '<i class="bi bi-exclamation-triangle-fill me-1"></i>' +
+            'Only .xlsx and .xls files are accepted.');
+    }
+});
+dropZone.addEventListener('click', (e) => {
+    if (!e.target.closest('label') && e.target !== fileInput) {
+        fileInput.click();
+    }
+});
+
+// ── File input change ─────────────────────────────────────────────────────
+fileInput.addEventListener('change', function () {
+    if (this.files.length > 0) onFilesSelected(Array.from(this.files));
+});
+
+// ── File selection handler ────────────────────────────────────────────────
+async function onFilesSelected(files) {
+    selectedFiles = files;
+    alertArea.innerHTML = '';
+    downloadSection.classList.add('d-none');
+    summarySection.classList.add ('d-none');
+    btnProcess.disabled = true;
+
+    fileCountBadge.classList.remove('d-none');
+    fileCountText.textContent =
+        files.length + ' file' + (files.length !== 1 ? 's' : '') + ' selected';
+
+    validationSection.classList.remove('d-none');
+    validationBadge.className   = 'badge bg-secondary';
+    validationBadge.textContent = 'Validating\u2026';
+    renderValidationGridPending(files);
+
+    await validateFilesViaApi(files);
+}
+
+function renderValidationGridPending(files) {
+    validationTableBody.innerHTML = '';
+    files.forEach(f => {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td class="fw-semibold">' + escHtml(f.name) + '</td>' +
+            '<td class="text-muted">\u2014</td>' +
+            '<td><span class="badge bg-secondary">Validating\u2026</span></td>' +
+            '<td></td>';
+        validationTableBody.appendChild(tr);
+    });
+}
+
+async function validateFilesViaApi(files) {
+    const fd = new FormData();
+    files.forEach(f => fd.append('files', f));
+
+    try {
+        const resp = await fetch('/api/validate', { method: 'POST', body: fd });
+        const data = await resp.json();
+
+        validationResults = data.results || [];
+        renderValidationGrid(validationResults);
+
+        const allValid = data.allValid === true;
+        const hasEnv   = environmentSel.value !== '';
+
+        if (allValid) {
+            validationBadge.className   = 'badge bg-success';
+            validationBadge.textContent = 'All Valid (' + validationResults.length + ')';
+        } else {
+            const bad = validationResults.filter(r => !r.valid).length;
+            validationBadge.className   = 'badge bg-danger';
+            validationBadge.textContent = bad + ' Invalid';
+            showAlert('danger',
+                '<i class="bi bi-x-circle-fill me-1"></i>' +
+                '<strong>' + bad + ' file(s) failed validation.</strong> ' +
+                'Correct the highlighted files and re-upload. ' +
+                'Use <em>Download Template</em> to get the required format.');
+        }
+
+        btnProcess.disabled = !(allValid && hasEnv);
+
+    } catch (err) {
+        validationBadge.className   = 'badge bg-warning text-dark';
+        validationBadge.textContent = 'Error';
+        showAlert('danger',
+            '<i class="bi bi-wifi-off me-1"></i>Validation failed: ' + escHtml(err.message));
+    }
+}
+
+function renderValidationGrid(results) {
+    validationTableBody.innerHTML = '';
+    results.forEach(r => {
+        const tr = document.createElement('tr');
+        if (!r.valid) tr.classList.add('table-danger');
+
+        let badge, errorCell;
+        if (r.valid) {
+            badge     = '<span class="badge bg-success">VALID</span>';
+            errorCell = '<span class="text-muted">\u2014</span>';
+        } else {
+            badge = '<span class="badge bg-danger">INVALID</span>';
+            if (r.error) {
+                errorCell = '<span class="text-danger small">' + escHtml(r.error) + '</span>';
+            } else if (r.missingColumns && r.missingColumns.length > 0) {
+                errorCell =
+                    '<span class="text-danger small">Missing: ' +
+                    r.missingColumns
+                        .map(c => '<code class="text-danger">' + escHtml(c) + '</code>')
+                        .join(', ') + '</span>';
+            } else {
+                errorCell = '<span class="text-danger small">Unknown error</span>';
+            }
+        }
+
+        tr.innerHTML =
+            '<td class="fw-semibold">' + escHtml(r.fileName) + '</td>' +
+            '<td>' + (r.rowCount >= 0 ? r.rowCount.toLocaleString() : '\u2014') + '</td>' +
+            '<td>' + badge + '</td>' +
+            '<td>' + errorCell + '</td>';
+
+        validationTableBody.appendChild(tr);
+    });
+}
+
+// ── Environment change ────────────────────────────────────────────────────
+environmentSel.addEventListener('change', function () {
+    if (validationResults.length > 0) {
+        const allValid = validationResults.every(r => r.valid);
+        btnProcess.disabled = !(allValid && this.value !== '');
+    }
+});
+
+// ── Process button ────────────────────────────────────────────────────────
+btnProcess.addEventListener('click', async function () {
+    const env = environmentSel.value;
+    if (!env) {
+        showAlert('warning',
+            '<i class="bi bi-exclamation-triangle-fill me-1"></i>Please select an environment.');
+        environmentSel.focus();
+        return;
+    }
+    if (selectedFiles.length === 0) return;
+
+    const fd = new FormData();
+    selectedFiles.forEach(f => fd.append('files', f));
+    fd.append('environment', env);
+
+    processingSpinner.classList.remove('d-none');
+    summarySection.classList.add ('d-none');
+    downloadSection.classList.add('d-none');
+    alertArea.innerHTML = '';
+    btnProcess.disabled = true;
+
+    try {
+        const resp = await fetch('/api/process', { method: 'POST', body: fd });
+        const data = await resp.json();
+
+        processingSpinner.classList.add('d-none');
+
+        if (data.success) {
+            showAlert('success',
+                '<i class="bi bi-check-circle-fill me-1"></i>' + data.message);
+            updateSummary(data.summary);
+            renderLog(data.logMessages);
+            downloadSection.classList.remove('d-none');
+        } else if (data.invalidFormat) {
+            let msg =
+                '<strong>Excel format is wrong.</strong><br>' +
+                'Expected: <code>Sl No</code>, <code>Files</code>, ' +
+                '<code>Type</code>, <code>Pushed by</code>, <code>Team</code>';
+            if (data.missingColumns && data.missingColumns.length) {
+                msg += '<br><strong>Missing:</strong> ' +
+                    data.missingColumns
+                        .map(c => '<code>' + escHtml(c) + '</code>').join(', ');
+            }
+            showAlert('danger',
+                '<i class="bi bi-exclamation-octagon-fill me-1"></i>' + msg);
+            addLogEntry('FORMAT ERROR: ' + data.message, true);
+        } else {
+            showAlert('danger',
+                '<i class="bi bi-x-circle-fill me-1"></i>' + escHtml(data.message));
+            addLogEntry('ERROR: ' + data.message, true);
+        }
+    } catch (err) {
+        processingSpinner.classList.add('d-none');
+        showAlert('danger',
+            '<i class="bi bi-wifi-off me-1"></i>Network error: ' + escHtml(err.message));
+    } finally {
+        btnProcess.disabled = false;
+    }
+});
+
+// ── Template download ─────────────────────────────────────────────────────
+btnDownloadTemplate.addEventListener('click', () => triggerDownload('/api/download/template'));
+
+// ── Result download buttons ───────────────────────────────────────────────
+document.getElementById('btnDownloadExcel')
+    .addEventListener('click', () => triggerDownload('/api/download/excel'));
+document.getElementById('btnDownloadCustomer')
+    .addEventListener('click', () => triggerDownload('/api/download/customer-git'));
+document.getElementById('btnDownloadProduct')
+    .addEventListener('click', () => triggerDownload('/api/download/product-git'));
+document.getElementById('btnDownloadRule')
+    .addEventListener('click', () => triggerDownload('/api/download/rule-git'));
+document.getElementById('btnDownloadMdt')
+    .addEventListener('click', () => triggerDownload('/api/download/mdt'));
+document.getElementById('btnDownloadJars')
+    .addEventListener('click', () => triggerDownload('/api/download/jarsname'));
+
+// ── Reset ─────────────────────────────────────────────────────────────────
+btnReset.addEventListener('click', async function () {
+    try { await fetch('/api/reset', { method: 'POST' }); } catch (_) {}
+    clearAll();
+    showAlert('info',
+        '<i class="bi bi-arrow-counterclockwise me-1"></i>Session reset. Ready for new files.');
+});
+
+// ── Clear log ─────────────────────────────────────────────────────────────
+btnClearLog.addEventListener('click', () => { logArea.innerHTML = ''; });
+
+// ── Summary update ────────────────────────────────────────────────────────
+function updateSummary(s) {
+    document.getElementById('statEnv')      .textContent = s.environment           || '\u2014';
+    document.getElementById('statFiles')    .textContent = s.filesUploaded          || 0;
+    document.getElementById('statTotal')    .textContent = (s.totalRows             || 0).toLocaleString();
+    document.getElementById('statValid')    .textContent = (s.validRows             || 0).toLocaleString();
+    document.getElementById('statRejected') .textContent = (s.rejectedRows          || 0).toLocaleString();
+    document.getElementById('statCustomer') .textContent = (s.customerGitCount      || 0).toLocaleString();
+    document.getElementById('statProduct')  .textContent = (s.productGitCount       || 0).toLocaleString();
+    document.getElementById('statRule')     .textContent = (s.ruleGitCount          || 0).toLocaleString();
+    document.getElementById('statMdt')      .textContent = (s.mdtCount              || 0).toLocaleString();
+    document.getElementById('statJars')     .textContent = (s.uniqueJarsCount       || 0).toLocaleString();
+    document.getElementById('statCorrect')  .textContent = (s.correctTypeCount      || 0).toLocaleString();
+    document.getElementById('statCorrected').textContent = (s.correctedTypeCount    || 0).toLocaleString();
+    document.getElementById('statUnable')   .textContent = (s.unableToIdentifyCount || 0).toLocaleString();
+    summarySection.classList.remove('d-none');
+}
+
+// ── Log helpers ───────────────────────────────────────────────────────────
+function renderLog(messages) {
+    logArea.innerHTML = '';
+    if (!messages || messages.length === 0) return;
+    messages.forEach(m => addLogEntry(m, false));
+}
+
+function addLogEntry(msg, isError) {
+    const ph = logArea.querySelector('.log-placeholder');
+    if (ph) ph.remove();
+    const div = document.createElement('div');
+    div.className   = isError ? 'log-entry log-error' : 'log-entry';
+    div.textContent = msg;
+    logArea.appendChild(div);
+    logArea.scrollTop = logArea.scrollHeight;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function clearAll() {
+    selectedFiles = [];
+    validationResults = [];
+    fileInput.value      = '';
+    environmentSel.value = '';
+    validationSection  .classList.add('d-none');
+    validationTableBody.innerHTML = '';
+    downloadSection    .classList.add('d-none');
+    summarySection     .classList.add('d-none');
+    alertArea.innerHTML = '';
+    btnProcess.disabled = true;
+    fileCountBadge.classList.add('d-none');
+    logArea.innerHTML =
+        '<div class="log-placeholder">' +
+        '<i class="bi bi-info-circle me-1"></i>' +
+        'Upload and process Excel files to see log entries here.' +
+        '</div>';
+}
+
+function showAlert(type, html) {
+    alertArea.innerHTML =
+        '<div class="alert alert-' + type +
+        ' alert-dismissible fade show" role="alert">' +
+        html +
+        '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+        '</div>';
+}
+
+function triggerDownload(url) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DEPLOYMENT REQUEST MODULE
+   ═══════════════════════════════════════════════════════════════════ */
+
+// ── Load logged-in username on page load ──────────────────────────────────
+let currentUserRole = '';
+(async function loadSessionUser() {
+    try {
+        const resp = await fetch('/api/session/user');
+        const data = await resp.json();
+        currentUserRole = (data.role || '').toUpperCase();
+        const displayName = data.displayName || data.username || '';
+        if (displayName) {
+            const devField = document.getElementById('depDeveloperName');
+            if (devField) devField.value = displayName;
+            const navSpan = document.getElementById('navUsername');
+            if (navSpan) navSpan.textContent = displayName;
+        }
+        // Role-based tab visibility
+        applyRoleAccess(currentUserRole);
+    } catch (e) { /* silent */ }
+})();
+
+/** Hide/show tabs based on user role */
+function applyRoleAccess(role) {
+    const singleTab     = document.getElementById('tabSingle');
+    const bulkTab       = document.getElementById('tabBulk');
+    const deploymentTab = document.getElementById('tabDeployment');
+
+    if (role === 'DEVELOPER') {
+        // Developer can ONLY see Deployment Request
+        singleTab.classList.add('d-none');
+        bulkTab.classList.add('d-none');
+        deploymentTab.classList.remove('d-none');
+        // Auto-switch to deployment mode
+        switchMode('deployment');
+    } else {
+        // DEPLOYER / ADMIN can see all tabs
+        singleTab.classList.remove('d-none');
+        bulkTab.classList.remove('d-none');
+        deploymentTab.classList.remove('d-none');
+    }
+}
+
+// ── Auto-set Deployment Date & Time when file is selected ─────────────────
+document.getElementById('depFile').addEventListener('change', function () {
+    if (this.files.length > 0) {
+        const now  = new Date();
+        const pad  = n => String(n).padStart(2, '0');
+        const date = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+        const time = pad(now.getHours()) + ':' + pad(now.getMinutes());
+        document.getElementById('depDeploymentDate').value = date;
+        document.getElementById('depDeploymentTime').value = time;
+    }
+});
+
+// ── Download deployment template (same template as main upload) ───────────
+document.getElementById('btnDepDownloadTemplate')
+    .addEventListener('click', () => triggerDownload('/api/download/template'));
+function switchDepTab(tab) {
+    const uploadSec    = document.getElementById('depUploadSection');
+    const dashSec      = document.getElementById('depDashboardSection');
+    const tabUpload    = document.getElementById('depTabUpload');
+    const tabDashboard = document.getElementById('depTabDashboard');
+    if (tab === 'upload') {
+        uploadSec.classList.remove('d-none');
+        dashSec.classList.add('d-none');
+        tabUpload.classList.add('active');
+        tabDashboard.classList.remove('active');
+    } else {
+        uploadSec.classList.add('d-none');
+        dashSec.classList.remove('d-none');
+        tabUpload.classList.remove('active');
+        tabDashboard.classList.add('active');
+        loadDepStats();
+        depSearch();
+    }
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────
+async function loadDepStats() {
+    try {
+        const resp = await fetch('/api/deployment/dashboard');
+        const data = await resp.json();
+        const s    = data.stats || {};
+        document.getElementById('depStatPending') .textContent = s.pending          || 0;
+        document.getElementById('depStatDeployed').textContent = s.deployed         || 0;
+        document.getElementById('depStatRejected').textContent = s.rejected         || 0;
+        document.getElementById('depStatToday')   .textContent = s.todayDeployments || 0;
+        document.getElementById('depStatUat1')    .textContent = s.uat1Pending      || 0;
+        document.getElementById('depStatUat2')    .textContent = s.uat2Pending      || 0;
+        document.getElementById('depStatPreprod') .textContent = s.preprodPending   || 0;
+        document.getElementById('depStatProd')    .textContent = s.prodPending      || 0;
+    } catch (e) {
+        console.error('Failed to load deployment stats', e);
+    }
+}
+document.getElementById('btnDepRefreshStats')
+    .addEventListener('click', () => { loadDepStats(); depSearch(); });
+
+// ── Submit new request ────────────────────────────────────────────────────
+document.getElementById('btnDepSubmit').addEventListener('click', async function () {
+    const alertEl   = document.getElementById('depAlertArea');
+    const devName   = document.getElementById('depDeveloperName').value.trim();
+    const env       = document.getElementById('depEnvironment').value;
+    const depDate   = document.getElementById('depDeploymentDate').value;
+    const depTime   = document.getElementById('depDeploymentTime').value;
+    const desc      = document.getElementById('depDescription').value;
+    const remarks   = document.getElementById('depRemarks').value;
+    const fileEl    = document.getElementById('depFile');
+
+    alertEl.innerHTML = '';
+
+    if (!devName || !env || !fileEl.files.length) {
+        alertEl.innerHTML = '<div class="alert alert-danger">Developer Name, Environment and Excel file are required.</div>';
+        return;
+    }
+
+    const fd = new FormData();
+    fd.append('developerName',   devName);
+    fd.append('environment',     env);
+    fd.append('deploymentDate',  depDate);
+    fd.append('deploymentTime',  depTime);
+    fd.append('description',     desc);
+    fd.append('remarks',         remarks);
+    fd.append('file',            fileEl.files[0]);
+
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Submitting…';
+
+    try {
+        const resp = await fetch('/api/deployment/upload', { method: 'POST', body: fd });
+        const data = await resp.json();
+        if (resp.ok && data.requestId) {
+            alertEl.innerHTML =
+                '<div class="alert alert-success"><i class="bi bi-check-circle-fill me-1"></i>' +
+                'Request <strong>' + escHtml(data.requestId) + '</strong> submitted successfully!</div>';
+            document.getElementById('depDeveloperName').value = '';
+            document.getElementById('depEnvironment').value   = '';
+            document.getElementById('depDeploymentDate').value = '';
+            document.getElementById('depDeploymentTime').value = '';
+            document.getElementById('depDescription').value   = '';
+            document.getElementById('depRemarks').value       = '';
+            fileEl.value = '';
+        } else {
+            let errHtml = '<div class="alert alert-danger"><strong><i class="bi bi-x-circle-fill me-1"></i>' +
+                escHtml(data.message || 'Submission failed.') + '</strong>';
+            if (data.rowErrors && data.rowErrors.length > 0) {
+                errHtml += '<ul class="mb-0 mt-2 small">';
+                data.rowErrors.forEach(function(e) {
+                    errHtml += '<li>' + escHtml(e) + '</li>';
+                });
+                errHtml += '</ul>';
+            }
+            if (data.missingColumns && data.missingColumns.length > 0) {
+                errHtml += '<p class="mb-0 mt-2 small">Missing: <strong>' +
+                    data.missingColumns.map(function(c){ return escHtml(c); }).join(', ') +
+                    '</strong></p><p class="small mb-0">Please download and use the latest template.</p>';
+            }
+            errHtml += '</div>';
+            alertEl.innerHTML = errHtml;
+        }
+    } catch (e) {
+        alertEl.innerHTML = '<div class="alert alert-danger">Network error: ' + escHtml(e.message) + '</div>';
+    } finally {
+        this.disabled = false;
+        this.innerHTML = '<i class="bi bi-send me-1"></i> Submit Request';
+    }
+});
+
+// ── Search ────────────────────────────────────────────────────────────────
+document.getElementById('btnDepSearch').addEventListener('click', depSearch);
+
+async function depSearch() {
+    const env    = document.getElementById('depSearchEnv').value;
+    const status = document.getElementById('depSearchStatus').value;
+    const from   = document.getElementById('depSearchFrom').value;
+    const to     = document.getElementById('depSearchTo').value;
+
+    const params = new URLSearchParams();
+    if (env)    params.append('environment', env);
+    if (status) params.append('status', status);
+    if (from)   params.append('fromDate', from);
+    if (to)     params.append('toDate', to);
+
+    const alertDash = document.getElementById('depAlertDashboard');
+    alertDash.innerHTML = '';
+
+    try {
+        const resp = await fetch('/api/deployment/search?' + params.toString());
+        const data = await resp.json();
+        if (!resp.ok) {
+            alertDash.innerHTML = '<div class="alert alert-danger">' + escHtml(data.message || 'Search failed.') + '</div>';
+            return;
+        }
+        renderDepResults(data.results || []);
+    } catch (e) {
+        alertDash.innerHTML = '<div class="alert alert-danger">Search failed: ' + escHtml(e.message) + '</div>';
+    }
+}
+
+function renderDepResults(list) {
+    const tbody   = document.getElementById('depResultsBody');
+    const counter = document.getElementById('depResultCount');
+    const role    = currentUserRole;
+    counter.textContent = list.length + ' result' + (list.length !== 1 ? 's' : '');
+
+    // Show/hide role-based columns
+    const showDeployedBy = (role === 'DEPLOYER' || role === 'ADMIN');
+    const showActions    = (role === 'DEPLOYER');
+    document.querySelectorAll('.dep-col-deployed-by').forEach(el => el.classList.toggle('d-none', !showDeployedBy));
+    document.querySelectorAll('.dep-col-actions').forEach(el => el.classList.toggle('d-none', !showActions));
+
+    const colCount = 9 + (showDeployedBy ? 1 : 0) + (showActions ? 1 : 0);
+
+    if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="' + colCount + '" class="text-center text-muted py-3">No requests found.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = list.map(r => {
+        let statusBadge;
+        if (r.status === 'DEPLOYED') {
+            statusBadge = '<span class="badge bg-success">DEPLOYED</span>';
+        } else if (r.status === 'REJECTED') {
+            const tip = r.rejectionComment ? escHtml(r.rejectionComment) : 'No comment';
+            statusBadge = '<span class="badge bg-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="' + tip + '" style="cursor:help">REJECTED</span>';
+        } else {
+            statusBadge = '<span class="badge bg-warning text-dark">PENDING</span>';
+        }
+        const uploadDate  = r.uploadTime     ? r.uploadTime.substring(0,10)     : '\u2014';
+        const deployDate  = r.deploymentDate ? r.deploymentDate                  : '\u2014';
+        const deployTime  = r.deploymentTime || '\u2014';
+
+        let row = '<tr data-id="' + r.id + '">' +
+            '<td class="fw-semibold">' + escHtml(r.requestId || '\u2014') + '</td>' +
+            '<td>' + escHtml(r.developerName || '\u2014') + '</td>' +
+            '<td><span class="badge bg-secondary">' + escHtml(r.environment || '\u2014') + '</span></td>' +
+            '<td class="text-truncate" style="max-width:160px" title="' + escHtml(r.fileName || '') + '">' + escHtml(r.fileName || '\u2014') + '</td>' +
+            '<td>' + uploadDate + '</td>' +
+            '<td>' + deployDate + '</td>' +
+            '<td>' + escHtml(deployTime) + '</td>' +
+            '<td>' + statusBadge + '</td>';
+
+        if (showDeployedBy) {
+            row += '<td>' + escHtml(r.deployedBy || '\u2014') + '</td>';
+        }
+
+        row += '<td><button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="depDownload(' + r.id + ')"><i class="bi bi-download"></i></button></td>';
+
+        if (showActions) {
+            if (r.status === 'PENDING') {
+                row += '<td class="text-nowrap">' +
+                    '<button class="btn btn-sm btn-success py-0 px-1 me-1" onclick="depShowComplete(' + r.id + ',\'' + escHtml(r.requestId || '') + '\')"><i class="bi bi-check2-circle"></i></button>' +
+                    '<button class="btn btn-sm btn-danger py-0 px-1" onclick="depShowReject(' + r.id + ',\'' + escHtml(r.requestId || '') + '\')"><i class="bi bi-x-circle"></i></button>' +
+                    '</td>';
+            } else {
+                row += '<td><span class="text-muted small">\u2014</span></td>';
+            }
+        }
+
+        row += '</tr>';
+        return row;
+    }).join('');
+
+    // Initialize Bootstrap tooltips for rejected status badges
+    const tooltipEls = document.querySelectorAll('#depResultsBody [data-bs-toggle="tooltip"]');
+    tooltipEls.forEach(el => new bootstrap.Tooltip(el));
+}
+
+// ── Download stored file ──────────────────────────────────────────────────
+function depDownload(id) {
+    triggerDownload('/api/deployment/download/' + id);
+}
+
+// ── Mark deployed (DEPLOYER only) ─────────────────────────────────────────
+let depCompleteId = null;
+
+function depShowComplete(id, requestId) {
+    depCompleteId = id;
+    document.getElementById('depCompleteLabel').textContent = requestId || ('ID: ' + id);
+    document.getElementById('depCompleteBar').classList.remove('d-none');
+    document.getElementById('depRejectBar').classList.add('d-none');
+}
+document.getElementById('btnDepCancelComplete')
+    .addEventListener('click', () => {
+        depCompleteId = null;
+        document.getElementById('depCompleteBar').classList.add('d-none');
+    });
+
+document.getElementById('btnDepComplete').addEventListener('click', async function () {
+    if (!depCompleteId) return;
+    try {
+        const resp = await fetch('/api/deployment/complete/' + depCompleteId, { method: 'POST' });
+        const data = await resp.json();
+        document.getElementById('depCompleteBar').classList.add('d-none');
+        depCompleteId = null;
+        if (data.success) {
+            loadDepStats();
+            depSearch();
+            document.getElementById('depAlertDashboard').innerHTML =
+                '<div class="alert alert-success"><i class="bi bi-check-circle-fill me-1"></i>' +
+                (data.requestId ? escHtml(data.requestId) + ' marked as deployed by ' + escHtml(data.deployedBy || '') + '.' : 'Marked as deployed.') +
+                '</div>';
+        } else {
+            document.getElementById('depAlertDashboard').innerHTML =
+                '<div class="alert alert-danger"><i class="bi bi-x-circle-fill me-1"></i>' +
+                escHtml(data.message || 'Operation failed.') + '</div>';
+        }
+    } catch (e) {
+        document.getElementById('depAlertDashboard').innerHTML =
+            '<div class="alert alert-danger">Failed: ' + escHtml(e.message) + '</div>';
+    }
+});
+
+// ── Reject deployment (DEPLOYER only) ─────────────────────────────────────
+let depRejectId = null;
+
+function depShowReject(id, requestId) {
+    depRejectId = id;
+    document.getElementById('depRejectLabel').textContent = requestId || ('ID: ' + id);
+    document.getElementById('depRejectComment').value = '';
+    document.getElementById('depRejectBar').classList.remove('d-none');
+    document.getElementById('depCompleteBar').classList.add('d-none');
+    document.getElementById('depRejectComment').focus();
+}
+document.getElementById('btnDepCancelReject')
+    .addEventListener('click', () => {
+        depRejectId = null;
+        document.getElementById('depRejectBar').classList.add('d-none');
+        document.getElementById('depRejectComment').value = '';
+    });
+
+document.getElementById('btnDepReject').addEventListener('click', async function () {
+    if (!depRejectId) return;
+    const comment = document.getElementById('depRejectComment').value.trim();
+    if (!comment) {
+        document.getElementById('depAlertDashboard').innerHTML =
+            '<div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-1"></i>Rejection comment is mandatory.</div>';
+        document.getElementById('depRejectComment').focus();
+        return;
+    }
+    try {
+        const resp = await fetch('/api/deployment/reject/' + depRejectId +
+            '?comment=' + encodeURIComponent(comment), { method: 'POST' });
+        const data = await resp.json();
+        document.getElementById('depRejectBar').classList.add('d-none');
+        document.getElementById('depRejectComment').value = '';
+        depRejectId = null;
+        if (data.success) {
+            loadDepStats();
+            depSearch();
+            document.getElementById('depAlertDashboard').innerHTML =
+                '<div class="alert alert-info"><i class="bi bi-x-circle-fill me-1"></i>' +
+                (data.requestId ? escHtml(data.requestId) + ' has been rejected.' : 'Deployment rejected.') +
+                '</div>';
+        } else {
+            document.getElementById('depAlertDashboard').innerHTML =
+                '<div class="alert alert-danger"><i class="bi bi-x-circle-fill me-1"></i>' +
+                escHtml(data.message || 'Operation failed.') + '</div>';
+        }
+    } catch (e) {
+        document.getElementById('depAlertDashboard').innerHTML =
+            '<div class="alert alert-danger">Failed: ' + escHtml(e.message) + '</div>';
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+# Maven build output
+target/
+
+# Eclipse project files
+.settings/
+.classpath
+.project
+
+# IntelliJ (in case you ever switch)
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Application secrets / local overrides
+application-local.properties
+*.env
+.env
+
+# Runtime data — uploaded/processed deployment files shouldn't be in Git
+deployment-files/
+deployment/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

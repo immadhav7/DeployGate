@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Login - DeployGate</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+          crossorigin="anonymous"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet"/>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 60%, #084298 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+        }
+        .login-header {
+            background: #0d6efd;
+            color: #fff;
+            border-radius: 16px 16px 0 0;
+            padding: 2rem 2rem 1.5rem;
+            text-align: center;
+        }
+        .login-header .app-icon {
+            font-size: 2.8rem;
+        }
+        .login-header h4 {
+            margin: 0.4rem 0 0.1rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .login-header p {
+            font-size: 0.85rem;
+            opacity: 0.85;
+            margin: 0;
+        }
+        .login-body {
+            padding: 2rem;
+        }
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13,110,253,.2);
+        }
+        .btn-login {
+            background: #0d6efd;
+            border: none;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+        .btn-login:hover { background: #0a58ca; }
+        .error-msg {
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+<div class="login-card bg-white">
+    <div class="login-header">
+        <div class="app-icon"><i class="bi bi-git"></i></div>
+        <h4>DeployGate</h4>
+        <p>Deployment Request Management &amp; Tracking</p>
+    </div>
+    <div class="login-body">
+
+        <!-- Error / logout messages -->
+        <div th:if="${error}" class="alert alert-danger error-msg py-2" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            <span th:text="${error}">Invalid credentials.</span>
+        </div>
+        <div th:if="${loggedOut}" class="alert alert-info error-msg py-2" role="alert">
+            <i class="bi bi-box-arrow-left me-1"></i>You have been logged out.
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="mb-3">
+                <label for="username" class="form-label fw-semibold">
+                    <i class="bi bi-person me-1"></i>Username
+                </label>
+                <input type="text" class="form-control" id="username" name="username"
+                       placeholder="Enter your username" autofocus required
+                       autocomplete="username"/>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="form-label fw-semibold">
+                    <i class="bi bi-lock me-1"></i>Password
+                </label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" name="password"
+                           placeholder="Enter your password" required
+                           autocomplete="current-password"/>
+                    <button class="btn btn-outline-secondary" type="button" id="togglePwd"
+                            tabindex="-1">
+                        <i class="bi bi-eye" id="eyeIcon"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-login btn-primary btn-lg">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+<script>
+    document.getElementById('togglePwd').addEventListener('click', function () {
+        const pwd  = document.getElementById('password');
+        const icon = document.getElementById('eyeIcon');
+        if (pwd.type === 'password') {
+            pwd.type  = 'text';
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            pwd.type  = 'password';
+            icon.className = 'bi bi-eye';
+        }
+    });
+</script>
+</body>
+</html>

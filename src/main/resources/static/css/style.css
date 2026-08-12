@@ -1,0 +1,180 @@
+/* ═══════════════════════════════════════════════════════════════════
+   GIT File Processor – Custom Styles
+   Bootstrap 5 is the base; these rules layer on top.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Base / Layout ──────────────────────────────────────────────────────── */
+body {
+    background-color: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+/* ── Navbar ─────────────────────────────────────────────────────────────── */
+.navbar {
+    padding: 0.65rem 1rem;
+}
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-header {
+    border-radius: 0 !important; /* handled by parent's overflow:hidden */
+    padding: 0.65rem 1rem;
+    font-size: 0.92rem;
+}
+
+/* ── Stat Cards (Summary) ────────────────────────────────────────────────── */
+.stat-card {
+    border-radius: 12px;
+    padding: 18px 14px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.stat-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -1px;
+}
+
+.stat-label {
+    font-size: 0.78rem;
+    margin-top: 6px;
+    opacity: 0.9;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Colour variants */
+.stat-info    { background-color: #0dcaf0; }
+.stat-warning { background-color: #ffc107; }
+.stat-orange  { background-color: #fd7e14; }
+
+/* ── Log Area ────────────────────────────────────────────────────────────── */
+.log-area {
+    min-height: 300px;
+    max-height: 480px;
+    overflow-y: auto;
+    background: #0d1117;   /* GitHub dark background */
+    border-radius: 0 0 12px 12px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.825rem;
+    line-height: 1.55;
+    padding: 4px 0;
+}
+
+.log-placeholder {
+    padding: 40px 20px;
+    text-align: center;
+    color: #8b949e;        /* GitHub dark secondary text */
+}
+
+.log-entry {
+    padding: 3px 16px;
+    color: #79c0ff;        /* GitHub dark blue – timestamp tokens */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.log-entry:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.log-error {
+    color: #ff7b72;        /* GitHub dark error red */
+}
+
+/* ── Scrollbar (log area) ─────────────────────────────────────────────────── */
+.log-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.log-area::-webkit-scrollbar-track {
+    background: #0d1117;
+}
+
+.log-area::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 3px;
+}
+
+/* ── Mode bar ────────────────────────────────────────────────────────────── */
+.mode-bar {
+    background: #ffffff;
+}
+
+/* ── Drop Zone ───────────────────────────────────────────────────────────── */
+.drop-zone {
+    border: 2px dashed #adb5bd;
+    border-radius: 10px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+    background: #f8f9fa;
+    user-select: none;
+}
+
+.drop-zone:hover {
+    border-color: #0d6efd;
+    background: #e7f1ff;
+}
+
+.drop-zone.drag-over {
+    border-color: #0d6efd;
+    background: #cfe2ff;
+    transform: scale(1.01);
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+}
+
+/* ── Purple stat card ────────────────────────────────────────────────────── */
+.stat-purple { background-color: #6f42c1; }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* ── Section heading ─────────────────────────────────────────────────────── */
+.letter-spacing {
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+}
+
+/* ── File input ──────────────────────────────────────────────────────────── */
+.form-control[type="file"] {
+    border-radius: 8px;
+}
+
+/* ── Spinner overlay ─────────────────────────────────────────────────────── */
+#processingSpinner p {
+    font-size: 0.95rem;
+}
+
+/* ── Alert area ──────────────────────────────────────────────────────────── */
+#alertArea .alert {
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
