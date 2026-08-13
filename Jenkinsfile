@@ -33,7 +33,18 @@ pipeline {
                 }
             }
         }
-
+        stage('SonarCloud Analysis') {
+            steps {
+                withSonarQubeEnv('SonarCloud') {
+                    sh '''
+                        mvn sonar:sonar \
+                          -Dsonar.projectKey=immadhav7_DeployGate \
+                          -Dsonar.organization=immadhav7 \
+                          -Dsonar.host.url=https://sonarcloud.io
+                    '''
+                }
+            }
+        }
         stage('Package') {
             steps {
                 sh 'mvn package -DskipTests'
