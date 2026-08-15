@@ -37,10 +37,10 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarCloud') {
                     sh '''
-                        mvn sonar:sonar \
-                          -Dsonar.projectKey=immadhav7_DeployGate \
-                          -Dsonar.organization=immadhav7 \
-                          -Dsonar.host.url=https://sonarcloud.io
+                        mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.10.0.2594:sonar \
+                        -Dsonar.projectKey=immadhav7_DeployGate \
+                        -Dsonar.organization=immadhav7 \
+                        -Dsonar.host.url=https://sonarcloud.io
                     '''
                 }
             }
