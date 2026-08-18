@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploygate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deploygate
+  template:
+    metadata:
+      labels:
+        app: deploygate
+    spec:
+      containers:
+        - name: deploygate
+          image: immadhav7/deploygate:latest
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: deploygate-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD

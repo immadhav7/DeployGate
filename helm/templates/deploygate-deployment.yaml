@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploygate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deploygate
+  template:
+    metadata:
+      labels:
+        app: deploygate
+    spec:
+      containers:
+        - name: deploygate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.app.port }}
+          envFrom:
+            - configMapRef:
+                name: deploygate-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD

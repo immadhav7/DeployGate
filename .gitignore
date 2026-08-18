@@ -28,3 +28,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+*.pem
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup

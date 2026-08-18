@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: deploygate-service
+spec:
+  type: NodePort
+  selector:
+    app: deploygate
+  ports:
+    - port: 8081
+      targetPort: 8081
+      nodePort: 30081

@@ -1,0 +1,76 @@
+---
+- name: Install k3s and Helm on target server
+  hosts: k3s
+  become: true
+
+  tasks:
+    - name: Check if swap file already exists
+      stat:
+        path: /swapfile
+      register: swapfile_check
+
+    - name: Create 1GB swap file (prevents I/O wait issues under memory pressure)
+      command: fallocate -l 1G /swapfile
+      when: not swapfile_check.stat.exists
+
+    - name: Set swap file permissions
+      file:
+        path: /swapfile
+        mode: '0600'
+      when: not swapfile_check.stat.exists
+
+    - name: Format swap file
+      command: mkswap /swapfile
+      when: not swapfile_check.stat.exists
+
+    - name: Enable swap
+      command: swapon /swapfile
+      when: not swapfile_check.stat.exists
+
+    - name: Persist swap in fstab
+      lineinfile:
+        path: /etc/fstab
+        line: '/swapfile none swap sw 0 0'
+        state: present
+
+    - name: Check if k3s is already installed
+      stat:
+        path: /usr/local/bin/k3s
+      register: k3s_check
+
+    - name: Install k3s
+      shell: curl -sfL https://get.k3s.io | sh -
+      when: not k3s_check.stat.exists
+
+    - name: Wait for k3s to be ready
+      wait_for:
+        path: /etc/rancher/k3s/k3s.yaml
+        timeout: 60
+
+    - name: Set up kubeconfig for ubuntu user
+      block:
+        - name: Create .kube directory
+          file:
+            path: /home/ubuntu/.kube
+            state: directory
+            owner: ubuntu
+            group: ubuntu
+            mode: '0755'
+
+        - name: Copy k3s config to user kubeconfig
+          copy:
+            src: /etc/rancher/k3s/k3s.yaml
+            dest: /home/ubuntu/.kube/config
+            remote_src: yes
+            owner: ubuntu
+            group: ubuntu
+            mode: '0600'
+
+    - name: Check if Helm is already installed
+      stat:
+        path: /usr/local/bin/helm
+      register: helm_check
+
+    - name: Install Helm
+      shell: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      when: not helm_check.stat.exists

@@ -1,0 +1,15 @@
+image:
+  repository: immadhav7/deploygate
+  tag: latest
+  pullPolicy: Always
+
+app:
+  port: 8081
+  nodePort: 30081
+
+postgres:
+  image: postgres:16
+  db: deploygate
+  user: deploygate_user
+  password: changeme123
+  storage: 1Gi

@@ -1,0 +1,30 @@
+---
+- name: Restart Jenkins service
+  hosts: jenkins
+  become: true
+  tasks:
+    - name: Restart Jenkins
+      systemd:
+        name: jenkins
+        state: restarted
+
+    - name: Wait for Jenkins to come back up
+      wait_for:
+        port: 8080
+        delay: 10
+        timeout: 60
+
+- name: Restart k3s service
+  hosts: k3s
+  become: true
+  tasks:
+    - name: Restart k3s
+      systemd:
+        name: k3s
+        state: restarted
+
+    - name: Wait for k3s API to come back up
+      wait_for:
+        port: 6443
+        delay: 10
+        timeout: 60

@@ -1,0 +1,28 @@
+server:
+  retention: "2d"
+  persistentVolume:
+    size: 1Gi
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 50m
+    limits:
+      memory: 256Mi
+
+alertmanager:
+  enabled: false
+
+kube-state-metrics:
+  enabled: false
+
+prometheus-node-exporter:
+  enabled: true
+  resources:
+    requests:
+      memory: 32Mi
+      cpu: 20m
+    limits:
+      memory: 64Mi
+
+prometheus-pushgateway:
+  enabled: false

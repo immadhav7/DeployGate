@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: deploygate-config
+data:
+  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-service:5432/{{ .Values.postgres.db }}
+  DB_USERNAME: {{ .Values.postgres.user | quote }}

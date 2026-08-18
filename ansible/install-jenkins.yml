@@ -1,0 +1,54 @@
+---
+- name: Install Jenkins on target server
+  hosts: jenkins
+  become: true
+
+  tasks:
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+
+    - name: Install Java 21 (required for Jenkins)
+      apt:
+        name: openjdk-21-jdk
+        state: present
+
+    - name: Add Jenkins GPG key
+      shell: |
+        curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | gpg --dearmor -o /usr/share/keyrings/jenkins-keyring.asc
+      args:
+        creates: /usr/share/keyrings/jenkins-keyring.asc
+
+    - name: Add Jenkins apt repository
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+        state: present
+        filename: jenkins
+
+    - name: Install Jenkins
+      apt:
+        name: jenkins
+        state: present
+        update_cache: yes
+
+    - name: Ensure Jenkins service is running and enabled
+      systemd:
+        name: jenkins
+        state: started
+        enabled: yes
+
+    - name: Wait for Jenkins to become available on port 8080
+      wait_for:
+        port: 8080
+        delay: 10
+        timeout: 60
+
+    - name: Fetch initial admin password
+      command: cat /var/lib/jenkins/secrets/initialAdminPassword
+      register: jenkins_initial_password
+      changed_when: false
+      failed_when: false
+
+    - name: Show initial admin password (only relevant on first install)
+      debug:
+        msg: "{{ jenkins_initial_password.stdout | default('Jenkins already configured - no initial password file found') }}"
